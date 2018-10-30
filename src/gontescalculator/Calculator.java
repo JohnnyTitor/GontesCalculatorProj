@@ -5,92 +5,135 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Stack;
-import jdk.nashorn.internal.runtime.regexp.joni.Regex;
 
 
-public class Calculator {
+public class Calculator 
+{
     
+    //simple check to see if a string is a number
+    static boolean isNumber(String str) 
+    {
+        try
+        {
+            Double.valueOf(str);
+            return true;
+        } 
+        catch(Exception e)
+        {
+            return false;
+        }
+    }
 
+    //first take the user's string and clean it up so it can be effectively used.
+    //after being formatted, it is split into a string[]
     public static String[] formatInput(String input)
     {
-        String output = input.toLowerCase();
+        String output = input;
         
         //removes all letters from the input
         output = output.replaceAll("[a-z]", "");
         
-        output = output.replaceAll("(?<number>\\d+(\\.\\d+)?)", " ${number} ");
+        //separates numbers and formats them
+        output = output.replaceAll("(?<number>\\d+(\\.\\d+)?)", "${number} ");
         
+        //fixes cases where the uses puts too many - when they mean subtract a negative
+        output = output.replaceAll("\\-{2,}", "\\- \\-");
+        
+        //isolate all the operators except for - due to negative numbers
         output = output.replaceAll("(?<ops>[+*/^()])", " ${ops} ");        
         
         // Removes all multi white spaces and replaces with a single space
         output = output.replaceAll(" {2,}", " ");
         
+        //clean up any extra whitespaces
         output = output.replaceAll("\\s+", " ").trim();
         
+        //splits the string into a string[] base on spaces
         return output.split(" ");
     }
     
-    static boolean isNumber(String str) {
-        try{
-            Double.valueOf(str);
-            return true;
-        } catch(Exception e){
-            return false;
-        }
-    }
+    //Takes the String[] that is clean and separated and convert it into a
+    // reverse polish notation queue, so it can be solved
+    public static Queue<String> reversePolishNotation(String[] infixNotation) 
+    {
+        //this is necessary in order to ensure that the queue follows
+        //order of operations
+        Map<String, Integer> operatorImportance = new HashMap<>();
+        operatorImportance.put("^", 3);
+        operatorImportance.put("*", 2);
+        operatorImportance.put("/", 2);
+        operatorImportance.put("-", 1);
+        operatorImportance.put("+", 1);
+        operatorImportance.put("(", 0);
  
-    public static Queue<String> convertInfixToRPN(String[] infixNotation) {
-        Map<String, Integer> prededence = new HashMap<>();
-        prededence.put("^", 2);
-        prededence.put("/", 2);
-        prededence.put("*", 2);
-        prededence.put("+", 1);
-        prededence.put("-", 1);
-        prededence.put("(", 0);
- 
-        Queue<String> Q = new LinkedList<>();
-        Stack<String> S = new Stack<>();
- 
-        for (String token : infixNotation) {
-            if ("(".equals(token)) {
-                S.push(token);
+        //this is where the ops are held during the operation.
+        Stack<String> opStack = new Stack<>();
+        //the solution queue or solQueue is the final rpn notation algorithm
+        Queue<String> solQueue = new LinkedList<>();
+        
+        for (String token : infixNotation) 
+        {
+            //the left paranthesis gets pushed onto the stack 
+            if (token.equals("(")) 
+            {
+                opStack.push(token);
                 continue;
             }
- 
-            if (")".equals(token)) {
-                while (!"(".equals(S.peek())) {
-                    Q.add(S.pop());
+            //if right parenthesis, continually pop off the ops until the 
+            //left parenthesis is found again.
+            if (token.equals(")")) {
+                while (!"(".equals(opStack.peek())) 
+                {
+                    solQueue.add(opStack.pop());
                 }
-                S.pop();
+                //pop off the left parenthesis. Continue the operation
+                opStack.pop();
                 continue;
             }
             // an operator
-            if (prededence.containsKey(token)) {
-                while (!S.empty() && prededence.get(token) <= prededence.get(S.peek())) {
-                    Q.add(S.pop());
+            if (operatorImportance.containsKey(token)) 
+            {
+                //if the op is less important than the one on the stack, add all
+                //the more important ones to the Queue, then push the current op
+                while (!opStack.empty() && operatorImportance.get(token) <= operatorImportance.get(opStack.peek())) 
+                {
+                    solQueue.add(opStack.pop());
                 }
-                S.push(token);
+                opStack.push(token);
                 continue;
             }
  
-            if (isNumber(token)) {
-                Q.add(token);
+            //push the numbers onto the solution queue
+            if (isNumber(token)) 
+            {
+                solQueue.add(token);
                 continue;
             }
  
-            throw new IllegalArgumentException("Invalid input");
+            //if some junk data that doesn't fit the formatting options is found,
+            //throw an effor
+            throw new IllegalArgumentException("Error!");
         }
-        // at the end, pop all the elements in S to Q
-        while (!S.isEmpty()) {
-            Q.add(S.pop());
+        // at the end, pop all the elements in the opstack to the solution queue
+        while (!opStack.isEmpty()) 
+        {
+            solQueue.add(opStack.pop());
         }
  
-        return Q;
+        // the solution queue returned is now a queue that is the RPN of the
+        //original expression
+        return solQueue;
     }
     
+    //Takes the RPN Queue and performs the correct oparations on them to create
+    //a queue where the solution is found as the first item in the queue
     public static double solve(Queue<String> input)
     {
+        //this stack is where the arithmatic will be done
         Stack<Double> sol = new Stack<>();
+        
+        //variable1 is the number 2 inputs away from the op, while variable2
+        // is the number next to the operation
         double var1 = 0.0;
         double var2 = 0.0;
         
@@ -100,15 +143,20 @@ public class Calculator {
         {
             String token = input.remove();
             
+            //if the value on the queue is a number, toss it onto the solutionstack
             if(isNumber(token))
             {
                 sol.push(Double.valueOf(token));
             }
             else
             {
+                //otherwise, if it's an operator, check which kind it is and
+                //perform it's specific action
                 switch (token)
                 {
                     case "+":
+                        //check to make sure there are enough objects on the
+                        //stack to actually perform the operation
                         if(sol.size() >=2)
                         {
                            var2 = sol.pop();
@@ -117,7 +165,7 @@ public class Calculator {
                         }
                         else
                         {
-                            //throw new Exception("Error");
+                            throw new IllegalArgumentException("Error!");
                         }
                         break;
                     case "-":
@@ -129,7 +177,7 @@ public class Calculator {
                         }
                         else
                         {
-                            //throw new Exception("Error");
+                            throw new IllegalArgumentException("Error!");
                         }
                         break;
                     case "*":
@@ -141,7 +189,7 @@ public class Calculator {
                         }
                         else
                         {
-                            
+                            throw new IllegalArgumentException("Error!");
                         }
                         break;
                     case "/":
@@ -153,7 +201,7 @@ public class Calculator {
                         }
                         else
                         {
-                            
+                            throw new IllegalArgumentException("Error!");
                         }
                         break;
                     case "^":
@@ -165,18 +213,25 @@ public class Calculator {
                         }
                         else
                         {
-                            
+                            throw new IllegalArgumentException("Error!");
                         }
                 }
             }
             
         }
         
+        //there should only be one thing left in the stack, otherwise something
+        //went wrong with the input
         if(sol.size() == 1)
         {
             return sol.pop();
         }
         
         return -1;
+    }
+    
+    public static Double calculate(String str)
+    {
+        return solve(reversePolishNotation(formatInput(str)));
     }
 }
