@@ -28,6 +28,8 @@ public class GontesCalculator
         System.out.println(Arrays.toString(formatted));
         Queue q = Calculator.convertInfixToRPN(formatted);
         System.out.println(q.toString());
+        Double solution = Calculator.solve(q);
+        System.out.println(solution.toString());
         keyboard.nextLine();
         System.exit(0);
     }
