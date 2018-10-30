@@ -24,13 +24,7 @@ public class GontesCalculator
     public static void main(String[] args) 
     {
         String test = (keyboard.nextLine());
-        String[] formatted = (Calculator.formatInput(test));
-        System.out.println(Arrays.toString(formatted));
-        Queue q = Calculator.convertInfixToRPN(formatted);
-        System.out.println(q.toString());
-        Double solution = Calculator.solve(q);
-        System.out.println(solution.toString());
-        keyboard.nextLine();
+        System.out.println(Calculator.calculate(test).toString());
         System.exit(0);
     }
     
