@@ -41,6 +41,7 @@ public class Calculator {
  
     public static Queue<String> convertInfixToRPN(String[] infixNotation) {
         Map<String, Integer> prededence = new HashMap<>();
+        prededence.put("^", 2);
         prededence.put("/", 2);
         prededence.put("*", 2);
         prededence.put("+", 1);
@@ -129,6 +130,42 @@ public class Calculator {
                         else
                         {
                             //throw new Exception("Error");
+                        }
+                        break;
+                    case "*":
+                        if(sol.size() >=2)
+                        {
+                            var2 = sol.pop();
+                            var1 = sol.pop();
+                            sol.push(var1 * var2);
+                        }
+                        else
+                        {
+                            
+                        }
+                        break;
+                    case "/":
+                        if(sol.size() >= 2)
+                        {
+                            var2 = sol.pop();
+                            var1 = sol.pop();
+                            sol.push(var1 / var2);
+                        }
+                        else
+                        {
+                            
+                        }
+                        break;
+                    case "^":
+                        if(sol.size() >= 2)
+                        {
+                            var2 = sol.pop();
+                            var1 = sol.pop();
+                            sol.push(Math.pow(var1, var2));
+                        }
+                        else
+                        {
+                            
                         }
                 }
             }
