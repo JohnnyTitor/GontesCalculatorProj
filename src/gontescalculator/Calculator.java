@@ -23,6 +23,18 @@ public class Calculator
             return false;
         }
     }
+    static boolean isNumber(char c) 
+    {
+        try
+        {
+            Double.valueOf(Character.toString(c));
+            return true;
+        } 
+        catch(Exception e)
+        {
+            return false;
+        }
+    }
 
     //first take the user's string and clean it up so it can be effectively used.
     //after being formatted, it is split into a string[]
@@ -34,7 +46,7 @@ public class Calculator
         output = output.replaceAll("[a-z]", "");
         
         //separates numbers and formats them
-        output = output.replaceAll("(?<number>\\d+(\\.\\d+)?)", "${number} ");
+        //output = output.replaceAll("(?<number>\\d+(\\.\\d+)?)", "${number} ");
         
         //fixes cases where the uses puts too many - when they mean subtract a negative
         output = output.replaceAll("\\-{2,}", "\\- \\-");
