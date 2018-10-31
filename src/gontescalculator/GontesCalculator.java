@@ -8,6 +8,7 @@ package gontescalculator;
 import java.util.Arrays;
 import java.util.Queue;
 import java.util.Scanner;
+import javax.swing.JFrame;
 
 /**
  *
@@ -23,9 +24,12 @@ public class GontesCalculator
     public static Scanner keyboard = new Scanner(System.in);
     public static void main(String[] args) 
     {
-        String test = (keyboard.nextLine());
-        System.out.println(Calculator.calculate(test).toString());
-        System.exit(0);
+        CalcGui gui = new CalcGui();
+        gui.pack();
+        gui.setLocationRelativeTo(null);
+        gui.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        gui.setVisible(true);
+        gui.setSize(450,300);
     }
     
 }
