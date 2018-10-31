@@ -22,7 +22,6 @@ public class CalcGui extends JFrame {
     private JButton num9 = new JButton("9");
     private JButton num0 = new JButton("0");
     private JButton neg = new JButton("neg");
-    private JButton equal = new JButton("1");
     private JButton add = new JButton("+");
     private JButton subtract = new JButton("-");
     private JButton multiply = new JButton("*");
